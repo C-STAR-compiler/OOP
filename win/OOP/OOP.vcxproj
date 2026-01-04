@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\IO.2025.8.23.1511\build\native\io.props" Condition="Exists('..\packages\IO.2025.8.23.1511\build\native\io.props')" />
+  <Import Project="..\packages\IO.2025.8.24.1305\build\native\io.props" Condition="Exists('..\packages\IO.2025.8.24.1305\build\native\io.props')" />
   <Import Project="..\packages\Diagnostic.2025.8.23.1505\build\native\diagnostic.props" Condition="Exists('..\packages\Diagnostic.2025.8.23.1505\build\native\diagnostic.props')" />
   <Import Project="packages\Diagnostic.2025.8.11.2048\build\native\diagnostic.props" Condition="Exists('packages\Diagnostic.2025.8.11.2048\build\native\diagnostic.props')" />
   <ItemGroup Label="ProjectConfigurations">
@@ -195,7 +195,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Diagnostic.2025.8.23.1505\build\native\diagnostic.targets" Condition="Exists('..\packages\Diagnostic.2025.8.23.1505\build\native\diagnostic.targets')" />
-    <Import Project="..\packages\IO.2025.8.23.1511\build\native\io.targets" Condition="Exists('..\packages\IO.2025.8.23.1511\build\native\io.targets')" />
+    <Import Project="..\packages\IO.2025.8.24.1305\build\native\io.targets" Condition="Exists('..\packages\IO.2025.8.24.1305\build\native\io.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -203,7 +203,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Diagnostic.2025.8.23.1505\build\native\diagnostic.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Diagnostic.2025.8.23.1505\build\native\diagnostic.props'))" />
     <Error Condition="!Exists('..\packages\Diagnostic.2025.8.23.1505\build\native\diagnostic.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Diagnostic.2025.8.23.1505\build\native\diagnostic.targets'))" />
-    <Error Condition="!Exists('..\packages\IO.2025.8.23.1511\build\native\io.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IO.2025.8.23.1511\build\native\io.props'))" />
-    <Error Condition="!Exists('..\packages\IO.2025.8.23.1511\build\native\io.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IO.2025.8.23.1511\build\native\io.targets'))" />
+    <Error Condition="!Exists('..\packages\IO.2025.8.24.1305\build\native\io.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IO.2025.8.24.1305\build\native\io.props'))" />
+    <Error Condition="!Exists('..\packages\IO.2025.8.24.1305\build\native\io.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IO.2025.8.24.1305\build\native\io.targets'))" />
   </Target>
 </Project>

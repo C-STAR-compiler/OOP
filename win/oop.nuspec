@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OOP</id>
-	<version> 2025.8.23.1522 </version>
+	<version> 2025.8.24.1356 </version>
     <authors>Philippe Caron</authors>
     <description>OOP Package provides Object Oriented Programming macros for C</description>
 	<readme>docs\README.md</readme>
