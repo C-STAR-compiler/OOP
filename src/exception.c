@@ -67,8 +67,10 @@ void _ex_default()
   signal(SIGFPE,  _ex_default_handler);
 }
 
-void _ex_teardown(int memory_watch)
+Exception *_ex_teardown()
 {
+  Exception *to_be_freed = NULL;
+
   _ex_default();
   _handler_set = 0;
 
@@ -79,11 +81,7 @@ void _ex_teardown(int memory_watch)
       type->destruct(_exception);
     }
 
-    if (memory_watch) {
-      __tfree(_exception);
-    } else {
-      tfree(_exception);
-    }
+    to_be_freed = _exception;
 
     _exception = NULL;
     _ex_caught = 0;
@@ -92,6 +90,8 @@ void _ex_teardown(int memory_watch)
   if (_exception) {
     _ex_default_handler(SIGUSR1);
   }
+
+  return to_be_freed;
 }
 
 void throw(Exception *exception)

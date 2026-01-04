@@ -11,6 +11,7 @@
 #include <variadic.h>
 #include <types.h>
 #include "macro.h"
+#include "oop.diagnostic.h"
 
 #ifdef WIN
 #undef CONST
@@ -84,29 +85,14 @@ UNUSED_SECTION(reflection) STATIC_EXPORT const Type EXPAND2(_typeof_, TYPENAME) 
 .fptr   = METHOD \
 }
 
-#ifdef MEMORY_WATCH
-// Creates a new instance of the object
-#define NEW(TYPENAME) TYPENAME ## _Construct((TYPENAME*)__talloc(&EXPAND2(_typeof_, TYPENAME), __FILE__, __LINE__) __NEW_CONT__
-#define __NEW_CONT__(...) __VA_COMMA__(__VA_ARGS__))
-#else
 // Creates a new instance of the object
 #define NEW(TYPENAME) TYPENAME ## _Construct((TYPENAME*)talloc(&EXPAND2(_typeof_, TYPENAME)) __NEW_CONT__
 #define __NEW_CONT__(...) __VA_OPT__(,) __VA_ARGS__)
-#endif
  
 // Call a virtual method on the object
 #define CALL(OBJECT, METHOD_NAME) virtual(gettype(OBJECT), #METHOD_NAME)(OBJECT __CALL_CONT__
 #define __CALL_CONT__(...) __VA_COMMA__(__VA_ARGS__))
 
-#ifdef MEMORY_WATCH
-#define DELETE(OBJECT) \
-if (OBJECT) { \
-  const Type *type = gettype(OBJECT); \
-  if (type->destruct) type->destruct(OBJECT); \
-  __tfree(OBJECT); \
-  OBJECT = NULL; \
-}
-#else
 #define DELETE(OBJECT) \
 if (OBJECT) { \
   const Type *type = gettype(OBJECT); \
@@ -114,7 +100,6 @@ if (OBJECT) { \
   tfree(OBJECT); \
   OBJECT = NULL; \
 }
-#endif
 
 #define BASE_0 &this->base
 #define BASE_1 BASE_0.base

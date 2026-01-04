@@ -13,6 +13,7 @@
 #include <osal.h>
 #include <diagnostic.h>
 #include <oop.h>
+#include <oop.diagnostic.h>
 
 #include "oop.export.h"
 
@@ -25,14 +26,7 @@
 
 #define TRY _ex_setup(); if (!setjmp(_ex_jump)) {
 #define CATCH(EXCEPTION_TYPE) } else if (_exception && castable(TYPE(EXCEPTION_TYPE), gettype(_exception)) && (_ex_caught = 1)) {
-#ifdef MEMORY_WATCH
-#define END_TRY } _ex_teardown(1);
-#else
-#define __ {
-// For the linter only
-#undef __
-#define END_TRY } _ex_teardown(0);
-#endif
+#define END_TRY } tfree(_ex_teardown());
 
 #define THROW(EXCEPTION) { _exception = (Exception*)EXCEPTION; _exception->filename = __FILE__; _exception->line = __LINE__; throw(_exception); }
 
@@ -49,8 +43,8 @@ OOP_EXPORT extern Exception  _ex_plchold;
 OOP_EXPORT extern jmp_buf    _ex_jump;
 OOP_EXPORT extern int        _ex_caught;
 
-OOP_EXPORT void _ex_setup();
-OOP_EXPORT void _ex_teardown(int memory_watch);
+OOP_EXPORT void       _ex_setup();
+OOP_EXPORT Exception *_ex_teardown();
 
 OOP_EXPORT void throw(Exception *exception);
 

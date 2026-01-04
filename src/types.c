@@ -74,22 +74,6 @@ ConstVirtualFunction constvirtual(const Type *type, const char *method)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void *__talloc(const Type *type, const char *filename, int line)
-{
-  const Type **mem = __malloc(sizeof(const Type*) + type->size, filename, line);
-               
-  if (mem) *mem++ = type;
-
-  return mem;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void __tfree(void *object)
-{
-  __free((const Type**)object - 1);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 void *talloc(const Type *type)
 {
   const Type **mem = malloc(sizeof(const Type*) + type->size);

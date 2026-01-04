@@ -130,10 +130,6 @@ OOP_EXPORT const Type *findtype(const char *typename);
 OOP_EXPORT VirtualFunction      virtual     (const Type *type, const char *name);
 OOP_EXPORT ConstVirtualFunction constvirtual(const Type *type, const char *name);
 
-// Memory watch helpers
-OOP_EXPORT void       *__talloc(const Type *type, const char *filename, int line);
-OOP_EXPORT void        __tfree(void *object);
-
 // Typed malloc
 OOP_EXPORT void       *talloc(const Type *type);
 
