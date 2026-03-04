@@ -25,8 +25,8 @@
 // The object declaration macro
 #define OBJECT(...) \
 typedef struct EXPAND2(_, TYPENAME) EXPAND(TYPENAME); \
-LIB_EXPORT EXPAND(TYPENAME) *_(Construct)(__VA_ARGS__); \
-LIB_EXPORT void _(Destruct)();
+PUBLIC EXPAND(TYPENAME) *_(Construct)(__VA_ARGS__); \
+PUBLIC void _(Destruct)();
 
 // Inherit from an object
 #define INHERIT(BASE_TYPENAME) \

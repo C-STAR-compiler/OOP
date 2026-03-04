@@ -21,7 +21,7 @@
 #define SIGUSR1 SIGABRT
 #endif
 
-#define LIB_EXPORT OOP_EXPORT
+#define PUBLIC OOP_EXPORT
 #define TYPENAME  Exception
 
 #define TRY _ex_setup(); if (!setjmp(_ex_jump)) {
@@ -38,18 +38,18 @@ OBJECT (const char *message, ...) INHERIT (char*)
   long        code;
 END_OBJECT("An unknown error occured!");
 
-OOP_EXPORT extern Exception *_exception;
-OOP_EXPORT extern Exception  _ex_plchold;
-OOP_EXPORT extern jmp_buf    _ex_jump;
-OOP_EXPORT extern int        _ex_caught;
+PUBLIC extern Exception *_exception;
+PUBLIC extern Exception  _ex_plchold;
+PUBLIC extern jmp_buf    _ex_jump;
+PUBLIC extern int        _ex_caught;
 
-OOP_EXPORT void       _ex_setup();
-OOP_EXPORT Exception *_ex_teardown();
+PUBLIC void       _ex_setup();
+PUBLIC Exception *_ex_teardown();
 
-OOP_EXPORT void throw(Exception *exception);
+PUBLIC void throw(Exception *exception);
 
 // Cast the object to the specified type
-OOP_EXPORT void *cast(const Type *type, void *object);
+PUBLIC void *cast(const Type *type, void *object);
 
 #undef TYPENAME
 #define TYPENAME SegmentationFaultException
@@ -67,6 +67,6 @@ OBJECT () INHERIT (Exception)
 END_OBJECT();
 #undef TYPENAME
 
-#undef LIB_EXPORT
+#undef PUBLIC
 
 #endif
