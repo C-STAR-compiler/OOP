@@ -25,7 +25,7 @@
 #define TYPENAME  Exception
 
 #define TRY {\
-  struct _exception_context _ec; \
+  struct _exception_context _ec = { .ex = NULL, .ex_caught = 0 }; \
   _ex_setup(&_ec); \
   if (!setjmp(_ec.ex_jmp)) {
 #define CATCH(EXCEPTION_TYPE) } else if (_ec.ex && castable(TYPE(EXCEPTION_TYPE), gettype(_ec.ex)) && (_ec.ex_caught = 1)) {
