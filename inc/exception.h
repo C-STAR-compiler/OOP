@@ -24,11 +24,15 @@
 #define PUBLIC OOP_EXPORT
 #define TYPENAME  Exception
 
+
+#define CAPTURE_EXCEPTION(EXCEPTION_TYPE, VARIABLE) EXCEPTION_TYPE *VARIABLE = (EXCEPTION_TYPE*)_ec.ex;
+#define IGNORE_EXCEPTION(EXCEPTION_TYPE, VARIABLE)
 #define TRY {\
   struct _exception_context _ec = { .ex = NULL, .ex_caught = 0 }; \
   _ex_setup(&_ec); \
   if (!setjmp(_ec.ex_jmp)) {
-#define CATCH(EXCEPTION_TYPE) } else if (_ec.ex && castable(TYPE(EXCEPTION_TYPE), gettype(_ec.ex)) && (_ec.ex_caught = 1)) {
+#define CATCH(EXCEPTION_TYPE, ...) } else if (_ec.ex && castable(TYPE(EXCEPTION_TYPE), gettype(_ec.ex)) && (_ec.ex_caught = 1)) { \
+  EXPAND3(__VA_IF__(CAPTURE_, __VA_ARGS__),__VA_ELSE__(IGNORE_, __VA_ARGS__),EXCEPTION(EXCEPTION_TYPE, __VA_ARGS__))
 #define END_TRY } _ex_teardown(); };
 
 #define THROW(EXCEPTION) { Exception *e = (Exception*)EXCEPTION; e->filename = __FILE__; e->line = __LINE__; throw(e); }
