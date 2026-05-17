@@ -1,106 +1,142 @@
 #include <exception.h>
 
-Exception *_exception   = NULL;
-Exception  _ex_plchold  = {};
-jmp_buf    _ex_jump     = {};
-int        _ex_caught   = 0;
-int        _handler_set = 0;
+#include <pthread.h>
 
-void _ex_set_exception(int signal)
+pthread_mutex_t                      _lock         = PTHREAD_MUTEX_INITIALIZER;
+__thread struct _exception_context **_context      = NULL;
+__thread int                         _context_size = 0;
+__thread int                         _context_cap  = 0;
+__thread Exception                  *_exception    = NULL;
+int                                  _handler_set  = 0;
+
+struct _exception_context *_ex_context() {
+  struct _exception_context *context = NULL;
+
+  if (_context && _context_size > 0) {
+    context = _context[_context_size - 1];
+  }
+
+  return context;
+}
+
+Exception *_ex_from_signal(int signal, Exception *actual)
 {
-  if (!_exception)
+  Exception *exception = actual;
+
+  if (!exception)
   {
     switch (signal)
     {
     case SIGSEGV:
-      _exception = (Exception*) NEW (SegmentationFaultException) ();
+      exception = (Exception*) NEW (SegmentationFaultException) ();
       break;
     case SIGFPE:
-      _exception = (Exception*) NEW (ArithmeticException) ();
+      exception = (Exception*) NEW (ArithmeticException) ();
       break;
     }
   }
+
+  return exception;
 }
 
-void _ex_default_handler(int signal)
+void _ex_handler(int signal)
 {
+  struct _exception_context *context = _ex_context();
   int code;
 
-  _ex_set_exception(signal);
+  if (context && !_exception) { // handled exception
 
-  code = _exception->code;
+    context->ex = _ex_from_signal(signal, context->ex);
+    longjmp(context->ex_jmp, context->ex->code);
 
-  if (_exception->filename)
-  {
-    fprintf(stderr, "%s(%d): ", _exception->filename, _exception->line);
-  }
+  } else { // default behaviour (crash)
 
-  fprintf(stderr, "%s\n", _exception->base);
+    _exception = _ex_from_signal(signal, _exception);
 
-  DELETE(_exception);
+    code = _exception->code;
 
-  exit(code);
-}
-
-void _ex_trycatch_handler(int signal)
-{
-  _ex_set_exception(signal);
-  longjmp(_ex_jump, _exception->code);
-}
-
-void _ex_setup()
-{
-  if (!_handler_set)
-  {
-    signal(SIGUSR1, _ex_trycatch_handler);
-    signal(SIGSEGV, _ex_trycatch_handler);
-    signal(SIGFPE,  _ex_trycatch_handler);
-  }
-
-  _handler_set = 1;
-}
-
-void _ex_default()
-{
-  signal(SIGUSR1, _ex_default_handler);
-  signal(SIGSEGV, _ex_default_handler);
-  signal(SIGFPE,  _ex_default_handler);
-}
-
-Exception *_ex_teardown()
-{
-  Exception *to_be_freed = NULL;
-
-  _ex_default();
-  _handler_set = 0;
-
-  if (_ex_caught) {
-    const Type *type = gettype(_exception);
-    
-    if (type && type->destruct) {
-      type->destruct(_exception);
+    if (_exception->filename)
+    {
+      fprintf(stderr, "%s(%d): ", _exception->filename, _exception->line);
     }
 
-    to_be_freed = _exception;
+    fprintf(stderr, "%s\n", _exception->base);
 
-    _exception = NULL;
-    _ex_caught = 0;
+    DELETE(_exception);
+
+    exit(code);
   }
+}
+
+void _ex_set_handler()
+{
+  pthread_mutex_lock(&_lock);
+
+  if (!_handler_set)
+  {
+    signal(SIGUSR1, _ex_handler);
+    signal(SIGSEGV, _ex_handler);
+    signal(SIGFPE,  _ex_handler);
+    
+    _handler_set = 1;
+  }
+
+  pthread_mutex_unlock(&_lock);
+}
+
+void _ex_setup(struct _exception_context *context)
+{
+  _ex_set_handler();
+
+  if (!_context) {
+    _context     = malloc(4 * sizeof(struct _exception_context));
+    _context_cap = 4;
+  }
+
+  if (_context_size == _context_cap) {
+    _context_cap <<= 1;
+    if (!(_context = realloc(_context, _context_cap))) {
+      fprintf(stderr, "Could not allocate exception frame!");
+      exit(-1);
+    }
+  }
+
+  _context[_context_size++] = context;
+}
+
+void _ex_teardown()
+{
+  struct _exception_context *context = _ex_context();
+
+  if (context->ex_caught) {
+    DELETE (context->ex);
+  } else {
+    _exception = context->ex;
+  }
+
+  _context[--_context_size] = NULL;
 
   if (_exception) {
-    _ex_default_handler(SIGUSR1);
+    _ex_handler(SIGUSR1);
   }
 
-  return to_be_freed;
+  if (_context_size == 0) {
+    _context_cap = 0;
+    free(_context);
+  }
 }
 
 void throw(Exception *exception)
 {
-  if (!_handler_set) {
-    _ex_default();
-  }
+  struct _exception_context *context = _ex_context();
 
-  _exception = exception;
+  _ex_set_handler();
+
+  if (context) {
+    context->ex = exception;
+  } else {
+    _exception = exception;
+  }
 
   raise(SIGUSR1);
 }

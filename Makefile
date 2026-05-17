@@ -10,7 +10,7 @@ include ver/version.mk
 PROJECT_ROOTS =
 
 # Additionnal libraries (ex: -pthread, -lmath, etc)
-LIBRARIES = 
+LIBRARIES = -pthread
 
 # Additionnal flags for the compiler
 FLAGS =

@@ -24,11 +24,14 @@
 #define PUBLIC OOP_EXPORT
 #define TYPENAME  Exception
 
-#define TRY _ex_setup(); if (!setjmp(_ex_jump)) {
-#define CATCH(EXCEPTION_TYPE) } else if (_exception && castable(TYPE(EXCEPTION_TYPE), gettype(_exception)) && (_ex_caught = 1)) {
-#define END_TRY } tfree(_ex_teardown());
+#define TRY {\
+  struct _exception_context _ec; \
+  _ex_setup(&_ec); \
+  if (!setjmp(_ec.ex_jmp)) {
+#define CATCH(EXCEPTION_TYPE) } else if (_ec.ex && castable(TYPE(EXCEPTION_TYPE), gettype(_ec.ex)) && (_ec.ex_caught = 1)) {
+#define END_TRY } _ex_teardown(); };
 
-#define THROW(EXCEPTION) { _exception = (Exception*)EXCEPTION; _exception->filename = __FILE__; _exception->line = __LINE__; throw(_exception); }
+#define THROW(EXCEPTION) { Exception *e = (Exception*)EXCEPTION; e->filename = __FILE__; e->line = __LINE__; throw(e); }
 
 #define CAST(TYPE, OBJECT) (TYPE)cast(TYPEOF(TYPE), OBJECT)
 
@@ -38,13 +41,14 @@ OBJECT (const char *message, ...) INHERIT (char*)
   long        code;
 END_OBJECT("An unknown error occured!");
 
-PUBLIC extern Exception *_exception;
-PUBLIC extern Exception  _ex_plchold;
-PUBLIC extern jmp_buf    _ex_jump;
-PUBLIC extern int        _ex_caught;
+struct _exception_context {
+  Exception *ex;
+  jmp_buf    ex_jmp;
+  int        ex_caught;
+};
 
-PUBLIC void       _ex_setup();
-PUBLIC Exception *_ex_teardown();
+PUBLIC void _ex_setup(struct _exception_context *context);
+PUBLIC void _ex_teardown();
 
 PUBLIC void throw(Exception *exception);
 

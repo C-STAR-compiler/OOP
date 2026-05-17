@@ -38,7 +38,7 @@ int main(void)
     printf("Caught seg fault exception\n");
 
   CATCH (Exception)
-    printf("Caught exception: %s\n", _exception->base);
+    printf("Caught exception: %s\n", _ec.ex->base);
 
   END_TRY;
 
